@@ -33,7 +33,7 @@ The first function I considered was fgets(), since we could easily put in the li
 
 We now have enough information to build an exploit script and carry out an attack.
 
-```
+```python
 #!/bin/python3
 
 from pwn import *
