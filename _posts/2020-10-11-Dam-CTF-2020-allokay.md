@@ -9,7 +9,7 @@ Running checksec on the binary, we can see that many standard exploit mitigation
 
 The program asks for the number of favorite numbers the user has. Next, the user has to put in all of his favorite numbers. One noticable thing is that the program does not handle certain numbers well, for example, when the user has 10 favorite numbers,the program stops after 6 numbers.
 
-![Initial dynamic analysis]({{site.baseurl}}/_posts/2020-10-11 20_46_01-allokay1.png)
+[<img src="{{ site.baseurl }}/images/allokay1.png"/>]({{ site.baseurl }}/)
 
 ## Initial Static analysis
 
@@ -21,7 +21,7 @@ As seen in the initial dynamic analysis, the program exits if more than 6 number
 
 One interesting property of the "get_input" function is that the iterator determines where on the stack the input is being written.
 
-![Number positioning]({{site.baseurl}}/_posts/2020-10-11 20_59_28-allokay2.png)
+[<img src="{{ site.baseurl }}/images/allokay2.png"/>]
 
 Since we control the iterator, we control where the program writes the data put in by the user, and since we control the numbers_max variable, we control how many writes it will perform before leaving the loop. This way, we can bypass the stack cookie and overwrite the saved return address with the address of "win()". It is important to note that the user has to put in the attacker data in the form of integers, since the scanf() function that gets the data uses the format string "%ld". For example, if we want to call win(), we would need to get the address in hexadecimal and convert it to decimal.
 
