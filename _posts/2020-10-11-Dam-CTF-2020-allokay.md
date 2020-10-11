@@ -9,7 +9,7 @@ Running checksec on the binary, we can see that many standard exploit mitigation
 
 The program asks for the number of favorite numbers the user has. Next, the user has to put in all of his favorite numbers. One noticable thing is that the program does not handle certain numbers well, for example, when the user has 10 favorite numbers,the program stops after 6 numbers.
 
-[<img src="{{ site.baseurl }}/images/allokay1.png"/>]
+<img src="{{ site.baseurl }}/images/allokay1.png"/>
 
 ## Initial Static analysis
 
