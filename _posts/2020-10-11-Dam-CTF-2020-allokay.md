@@ -3,8 +3,6 @@ layout: post
 title: Dam CTF 2020 allokay (pwn)
 ---
 
-# Dam CTF 2020: allokay (pwn)
-
 Running checksec on the binary, we can see that many standard exploit mitigation technologies are present: stack canaries, non-executable stack, no RUNPATH. PIE is disabled, and the debugging symbols are still present.
 
 ## Initial dynamic analysis
