@@ -29,7 +29,7 @@ After sending the payload, the user will again be presented with the prompt to s
 
 The first step is leaking the base address of libc. I started by building a payload that executes the puts() function, with the GOT address of puts as its argument, followed by a call to main(), which will effectively start the program from the beginning, allowing us to perform a second buffer overflow that gets us the shell. The libc file provided by the challenge can be used to get the proper offsets of the symbols to calculate the base address and the addresses of "/bin/sh" and system(). This worked locally, but not remotely for some reason. This was because the stack was not 16-bytes alligned. This was solved with a simple call to ret before executing the shell payload.
 
-```python
+{% highlight python %}
 from pwn import *
 
 elf = context.binary = ELF("rps")
@@ -99,4 +99,4 @@ p.recvuntil(b"Would you like to play again? [yes/no]: ")
 p.sendline(b"no")
 
 p.interactive()
-```
+{% endhighlight %}
