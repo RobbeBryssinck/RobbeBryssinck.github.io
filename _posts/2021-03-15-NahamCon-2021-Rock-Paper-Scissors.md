@@ -1,3 +1,8 @@
+---
+layout: post
+title: NahamCon 2021 rock paper scissors (pwn)
+---
+
 This weekend, there was a blue moon, so I figured I'd upload something to my blog again.
 
 # Rock paper scissors
