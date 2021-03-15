@@ -8,13 +8,19 @@ This weekend, there was a blue moon, so I figured I'd upload something to my blo
 # Rock paper scissors
 The program itself is straightforward. The user gets asked if they want to play rock, paper, scissors. The user can answer with y or n. If the user chooses to play, the program presents the user with 3 options: rock, paper or scissors. They can be selected through putting a number in for which option they'd like to choose. Next, the program will tell the user whether they lost or won, presumably based on a randomized guess from the computer and a simple logic check. Regardless, the user will be presented with the option to play again. This time, the user can fill in more than a character, namely "yes" or "no". If the user puts in "yes", the game starts again. If the user puts in anything else, the program exits.
 
+<img src="{{ site.baseurl }}/images/rps1.png"/>
+
 ## Preliminary analysis
 I started by running checksec on the binary. RELRO and NX were enabled, but stack canaries and PIE were not. This lead me to think that the vulnerability was a stack overflow one. The binary also came with a libc file, so the stack overflow would probably have to be chained with a libc memory address leak, forming a ret2libc exploit.
 
 ## The vulnerability
 Opening the binary in Ghidra, we can see that the function containing the game loop gets the selected option from the user through a call to scanf(), meaning that at this time, this call is not vulnerable to any buffer overflows, since the format string only accepts integers. Unfortunately, this is the only function call that stores its input on the stack. Later on, the game asks whether the user wants to play again or not. This is done through a call to read(), which takes 0x19 bytes and stores it in a global variable in the .data section, meaning that it can not cause a stack buffer overflow. We will call the variable playAgainAnswer. The read() call's destination might have other things it can override that might be interesting to the attacker, though.
 
+<img src="{{ site.baseurl }}/images/rps2.png"/>
+
 The playAgainAnswer variable is located right before the pointer that points to the format string used in the scanf() call that gets the user's choice. The attacker can put in 0x19 bytes, which is just enough to overflow the least significant byte of the format string pointer. If there is a format string in memory that takes strings instead of integers, the pointer can be overwritten to use that instead. Right before the "%d" format string, there is in fact a "%s" string.
+
+<img src="{{ site.baseurl }}/images/rps3.png"/>
 
 One issue with this vulnerability is that the game loop needs to be run again after corrupting the format string pointer, but the playAgainAnswer needs to be "yes\n" in order for that to happen, which is not the case if we feed it the overflow payload. The function that is used to compare the strings is strcmp(), which stops comparing when the null byte is hit on both strings. One trick to bypass this is through null-byte poisoning. This means that the payload starts with "yes\n", followed by a null byte, which is followed by the payload.
 
@@ -94,4 +100,3 @@ p.sendline(b"no")
 
 p.interactive()
 ```
-
