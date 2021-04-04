@@ -1,6 +1,6 @@
 ---
 layout: post
-title: LEGO Island 2
+title: LEGO Island 2 (mod)
 ---
 
 TL;DR: if you are a beginner in reverse engineering games, part 1 might be interesting to you. If you want to hear my ideas on how I modified a game which is not very extensible due to a lot of things being hardcoded, part 2 might be more interesting to you.
