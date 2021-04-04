@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Modding an old game which hardcodes nearly everything (LEGO Island 2): part 1 of 2
+title: Reverse engineering LEGO Island: part 1 of 2
 ---
 
 TL;DR: if you are a beginner in reverse engineering games, part 1 might be interesting to you. If you want to hear my ideas on how I modified a game which is not very extensible due to a lot of things being hardcoded, part 2 might be more interesting to you.
