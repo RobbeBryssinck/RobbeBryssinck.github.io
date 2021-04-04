@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Modding an old game which hardcodes nearly everything (LEGO Island 2): part 1 of 2
+title: Dam CTF 2020 allokay (pwn2
 ---
 
 # Modding an old game which hardcodes nearly everything (LEGO Island 2): part 1 of 2
