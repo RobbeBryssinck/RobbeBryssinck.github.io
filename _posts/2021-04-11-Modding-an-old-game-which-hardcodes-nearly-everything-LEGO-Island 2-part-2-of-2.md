@@ -13,7 +13,7 @@ To implement the fly hack, I decided to use the glider object. The glider is a v
 
 To start, we have to find the glider object in memory. Since the entity list is always the same, the glider object should always be at the same position in the entity list. With this in mind, we can use a debugger to break when the memory at the address of the glider object gets written to during initialization of the entity list. It should write "GLDR" there, which is the shorthand name for the "glider" object. I copied the memory address of the instruction that wrote the "GLDR" string, and jumped to that address in Ghidra to analyze the surrounding code. This didn't go quite as planned.
 
-<img src="{{ site.baseurl }}/images/LegoIsland2/GhidraCrash.png" style="border: 5px solid #555;" />
+<a href="{{ site.baseurl }}/images/LegoIsland2/GhidraCrash.png"><img src="{{ site.baseurl }}/images/LegoIsland2/GhidraCrash.png" style="border: 5px solid #555;" /></a>
 
 Ghidra was unable to decompile the entire function due to a time out. When looking at the size of the function, things became clearer. The function was a whopping **156,579 bytes** large. Scrolling through the function, there were other shorthand names being written to the entity list. Presumably, this function initialized the *entire* entity list directly, without any function calls to object specific initializers or constructors. This would not be too bad if this gigantic function initialized everything linearly, so that initialization code specific to a certain object was at least right next to each other, but this is not the case. After letting execution continue and looking at the glider object in memory when the game finished loading, more initialization took place in some other function, given that the object looked different from when the massive initializer function was just done with the snippet of code that initialized the glider's name and such.
 
@@ -59,7 +59,7 @@ The fly hack can be implemented in the following 4 steps:
 
 The process is visualized in the flowchart below. The white squares represent the original code, and the red squares represent the injected code from the fly hack. I also included some pseudocode of the process.
 
-<img src="{{ site.baseurl }}/images/LegoIsland2/HookingLE2.png" style="border: 5px solid #555;" />
+<a href="{{ site.baseurl }}/images/LegoIsland2/HookingLE2.png"><img src="{{ site.baseurl }}/images/LegoIsland2/HookingLE2.png" style="border: 5px solid #555;" /></a>
 
 {% highlight c %}
 void GameLoop()
@@ -95,7 +95,7 @@ We need to hook two functions: the function that handles entering a glider, and 
 
 ### Entry hook
 
-<img src="{{ site.baseurl }}/images/LegoIsland2/Hook1.png" style="border: 5px solid #555;" />
+<a href="{{ site.baseurl }}/images/LegoIsland2/Hook1.png"><img src="{{ site.baseurl }}/images/LegoIsland2/Hook1.png" style="border: 5px solid #555;" /></a>
 
 The first three instructions are responsible for checking the KeyStroke variable to see if the ‘c’ key was pressed in this iteration of the world state loop. If so, the variable will hold the value 0x80. That is why the one-byte dl register is compared to 0x80. Next, the code checks whether the player is already in a vehicle. This is done by calling an in-game function which takes a value, in this case 0x5E, and uses that value as a key in a global dictionary. The function returns the value linked to that key. The return value is then ANDed with 1. If the player is in a vehicle, the return value will be an even number, so the AND operation will return zero and the function will end early.
 
@@ -124,7 +124,7 @@ int CheckEnterVehicleHook(vehicle)
 
 The fly movement function needs to be hooked to teleport the glider to the player's location. This is not the only function of the hook, however. The first time that the fly movement function is called after entry, the function will also perform some initialization code. To perform this, it will check whether the "control" key was pressed. In our hack, we use the "c" key, so this check will fail and the game will consequently crash. To fix this, we need to execute the initialization code within the fly movement function after entering the glider through the hack. To do this, I simulated the checks in the hook, only this time, I again checked whether the "c" key was pressed instead of the "control" key.
 
-<img src="{{ site.baseurl }}/images/LegoIsland2/Hook2.png" style="border: 5px solid #555;" />
+<a href="{{ site.baseurl }}/images/LegoIsland2/Hook2.png"><img src="{{ site.baseurl }}/images/LegoIsland2/Hook2.png" style="border: 5px solid #555;" /></a>
 
 The first instructions in the hook check whether the glider is still in “entry” mode. The glider entity has a variable for this at offset 0x23, which should have the value 3 if it is still in entry mode. Next, I check whether the ‘c’ key is pressed. The last part of the check is checking whether the passed entity to the movement update function is the glider, and not the Pteranodon, by comparing the entity passed to the fly movement function to the saved entity in the global EnteredVehicle variable.
 
