@@ -1,9 +1,7 @@
-```
 ---
 layout: post
 title: Modding an old game which hardcodes nearly everything (LEGO Island 2) part 2 of 2
 ---
-```
 
 In part 1, I reverse engineered most of the relevant parts of the code. In this post, I will look at how to extend the functionality of the game to allow me to fly using a fly hack.
 
@@ -15,13 +13,11 @@ To implement the fly hack, I decided to use the glider object. The glider is a v
 
 To start, we have to find the glider object in memory. Since the entity list is always the same, the glider object should always be at the same position in the entity list. With this in mind, we can use a debugger to break when the memory at the address of the glider object gets written to during initialization of the entity list. It should write "GLDR" there, which is the shorthand name for the "glider" object. I copied the memory address of the instruction that wrote the "GLDR" string, and jumped to that address in Ghidra to analyze the surrounding code. This didn't go quite as planned.
 
-```
 <kbd><img src="{{ site.baseurl }}/images/LegoIsland2/GhidraCrash.png"/></kbd>
-```
 
 Ghidra was unable to decompile the entire function due to a time out. When looking at the size of the function, things became clearer. The function was a whopping **156,579 bytes** large. Scrolling through the function, there were other shorthand names being written to the entity list. Presumably, this function initialized the *entire* entity list directly, without any function calls to object specific initializers or constructors. This would not be too bad if this gigantic function initialized everything linearly, so that initialization code specific to a certain object was at least right next to each other, but this is not the case. After letting execution continue and looking at the glider object in memory when the game finished loading, more initialization took place in some other function, given that the object looked different from when the massive initializer function was just done with the snippet of code that initialized the glider's name and such.
 
-```c
+{% highlight c %}
 void MassiveInitializator()
 {
     ...
@@ -38,7 +34,7 @@ void MassiveInitializator()
     // Initialize glider some more
     ...
 }
-```
+{% endhighlight %}
 
 If I want to recreate the glider initialization code and add a new one to the list over which I would have full control, I had to hunt down any possible code that initializes the glider object and recreate it. This is what makes the game so inextensible: the entity (list) initialization is hard coded, without any straightforward way to add a new object on demand.
 
@@ -65,7 +61,7 @@ The process is visualized in the flowchart below. The white squares represent th
 
 <kbd><img src="{{ site.baseurl }}/images/LegoIsland2/HookingLE2.png"/></kbd>
 
-```c
+{% highlight c %}
 void GameLoop()
 {
     InitializeEntities();
@@ -91,7 +87,7 @@ void EntityLoop2()
     	Glider.ControlFlyMovement(); // will be hooked
     // Continue looping through entities...
 }
-```
+{% endhighlight %}
 
 ## Crafting the fly hack
 
@@ -107,7 +103,7 @@ Then, the entity will be checked to see if it is a glider or not. Coincidentally
 
 Finally, if all these checks pass, the address of the glider entity is moved into the EnteredVehicle variable (which is a global variable that stores the currently entered vehicle), and execution jumps back to the original glider entry function. The only difference is that it returns to the part in the function where it returns 1. Below, I wrote some pseudocode of the injected code.
 
-```c
+{% highlight c %}
 int CheckEnterVehicleHook(vehicle)
 {
     if (KeyStroke == 'c' && !Player.IsInVehicle && vehicle.name == "GLDR")
@@ -120,7 +116,7 @@ int CheckEnterVehicleHook(vehicle)
         return 0;
     }
 }
-```
+{% endhighlight %}
 
 
 
@@ -134,7 +130,7 @@ The first instructions in the hook check whether the glider is still in “entry
 
 The last part of the hooked code is teleporting the glider to the player. This is done in 4 instructions per coordinate. First, the player object is loaded into edx. Next, the coordinate is loaded into the ecx register. Following that, the glider entity is loaded into edx. Lastly, the saved player coordinate in ecx is saved in the coordinate of the glider entity. This is done three times in total; once for each coordinate. Lastly, execution will jump back to the original fly code. Again, I included some pseudocode of the injected code below.
 
-```c
+{% highlight c %}
 void FlyMovementHook(glider)
 {
     if (glider.IsInEntryMode && KeyStroke == 'c' && EnteredVehicle == glider)
@@ -145,7 +141,7 @@ void FlyMovementHook(glider)
         UpdateMovement(glider);
     }
 }
-```
+{% endhighlight %}
 
 ## Conclusion
 
