@@ -3,6 +3,8 @@ layout: post
 title: Modding an old game which hardcodes nearly everything (LEGO Island 2) part 1 of 2
 ---
 
+Source code: https://github.com/RobbeBryssinck/LegoIsland2Reversing.git
+
 TL;DR: if you are a beginner in reverse engineering games, part 1 might be interesting to you. If you want to hear my ideas on how I modified a game which is not very extensible due to a lot of things being hardcoded, part 2 might be more interesting to you.
 
 I recently dug up an old pc game from my childhood, LEGO Island 2, which is an action adventure game with several maps and a semi-open world. There is this one NPC, a train conductor, who can fly around the map and picks you up when you step onto the train tracks. I always wanted to be able to freely fly around the map like him, preferably at the press of a button, without having to go to a flying vehicle first. In this blog post, I will attempt to mod the game to do just that.
