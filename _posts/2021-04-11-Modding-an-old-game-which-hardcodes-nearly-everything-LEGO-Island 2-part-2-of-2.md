@@ -3,6 +3,8 @@ layout: post
 title: Modding an old game which hardcodes nearly everything (LEGO Island 2) part 2 of 2
 ---
 
+Source code: https://github.com/RobbeBryssinck/LegoIsland2Reversing.git
+
 In part 1, I reverse engineered most of the relevant parts of the code. In this post, I will look at how to extend the functionality of the game to allow me to fly using a fly hack.
 
 ## Strategy
